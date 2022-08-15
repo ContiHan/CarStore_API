@@ -34,7 +34,6 @@ namespace CarStore_API.Controllers
 
         // GET: api/Cars/5
         [HttpGet("{id}")]
-        []
         public async Task<ActionResult<Car>> GetCar(int id)
         {
             if (_context.Cars == null)
@@ -51,8 +50,9 @@ namespace CarStore_API.Controllers
             return car;
         }
 
-        // GET: api/Cars/5
         [HttpGet("filter")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Car>>> GetCarsByFilter([FromQuery] string? condition = null, [FromQuery] string? bodytype = null, [FromQuery] string? fuel = null)
         {
             var cars = _context.Cars.AsQueryable();
@@ -75,7 +75,7 @@ namespace CarStore_API.Controllers
                 return NotFound();
             }
 
-            return await cars.AsNoTracking().ToListAsync();
+            return Ok(await cars.AsNoTracking().ToListAsync());
         }
 
         // PUT: api/Cars/5
