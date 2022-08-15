@@ -25,21 +25,22 @@ namespace CarStore_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Car>>> GetCars()
         {
-          if (_context.Cars == null)
-          {
-              return NotFound();
-          }
+            if (_context.Cars == null)
+            {
+                return NotFound();
+            }
             return await _context.Cars.ToListAsync();
         }
 
         // GET: api/Cars/5
         [HttpGet("{id}")]
+        []
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-          if (_context.Cars == null)
-          {
-              return NotFound();
-          }
+            if (_context.Cars == null)
+            {
+                return NotFound();
+            }
             var car = await _context.Cars.FindAsync(id);
 
             if (car == null)
@@ -48,6 +49,33 @@ namespace CarStore_API.Controllers
             }
 
             return car;
+        }
+
+        // GET: api/Cars/5
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<Car>>> GetCarsByFilter([FromQuery] string? condition = null, [FromQuery] string? bodytype = null, [FromQuery] string? fuel = null)
+        {
+            var cars = _context.Cars.AsQueryable();
+
+            if (!string.IsNullOrEmpty(condition))
+            {
+                cars = cars.Where(c => c.Condition.ToLower().Contains(condition.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(bodytype))
+            {
+                cars = cars.Where(c => c.BodyType.ToLower().Contains(bodytype.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(fuel))
+            {
+                cars = cars.Where(c => c.Fuel.ToLower().Contains(fuel.ToLower()));
+            }
+
+            if (!await cars.AnyAsync())
+            {
+                return NotFound();
+            }
+
+            return await cars.AsNoTracking().ToListAsync();
         }
 
         // PUT: api/Cars/5
@@ -86,10 +114,10 @@ namespace CarStore_API.Controllers
         [HttpPost]
         public async Task<ActionResult<Car>> PostCar(Car car)
         {
-          if (_context.Cars == null)
-          {
-              return Problem("Entity set 'AppDbContext.Cars'  is null.");
-          }
+            if (_context.Cars == null)
+            {
+                return Problem("Entity set 'AppDbContext.Cars'  is null.");
+            }
             _context.Cars.Add(car);
             await _context.SaveChangesAsync();
 
