@@ -92,14 +92,20 @@ namespace CarStore_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutCar(int id, Car car)
+        public async Task<IActionResult> UpdateCar(int id, Car car)
         {
             if (id != car.Id)
             {
                 return BadRequest();
             }
 
+           // car.CreatedDate = _context.Cars.FirstOrDefault(c => c.Id == id).CreatedDate;
+
+            //_context.Entry(car.CreatedDate).State = EntityState.Unchanged;
+            //car.UpdateDate = DateTime.Now;
             _context.Entry(car).State = EntityState.Modified;
+            _context.Entry(car).Property(nameof(Car.CreatedDate)).IsModified = false;
+            _context.Entry(car).Property(nameof(Car.UpdateDate)).CurrentValue = DateTime.Now;
 
             try
             {
@@ -124,12 +130,15 @@ namespace CarStore_API.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<Car>> PostCar(Car car)
+        public async Task<ActionResult<Car>> CreateCar(Car car)
         {
             if (_context.Cars == null)
             {
                 return Problem("Entity set 'AppDbContext.Cars'  is null.");
             }
+
+            car.CreatedDate = car.UpdateDate = DateTime.Now;
+
             _context.Cars.Add(car);
             await _context.SaveChangesAsync();
 
