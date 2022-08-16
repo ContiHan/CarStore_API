@@ -23,17 +23,21 @@ namespace CarStore_API.Controllers
 
         // GET: api/Cars
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Car>>> GetCars()
         {
             if (_context.Cars == null)
             {
                 return NotFound();
             }
-            return await _context.Cars.ToListAsync();
+            return Ok(await _context.Cars.ToListAsync());
         }
 
         // GET: api/Cars/5
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
             if (_context.Cars == null)
@@ -47,7 +51,7 @@ namespace CarStore_API.Controllers
                 return NotFound();
             }
 
-            return car;
+            return Ok(car);
         }
 
         [HttpGet("filter")]
@@ -55,6 +59,10 @@ namespace CarStore_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<Car>>> GetCarsByFilter([FromQuery] string? condition = null, [FromQuery] string? bodytype = null, [FromQuery] string? fuel = null)
         {
+            if (_context.Cars is null)
+            {
+                return NotFound();
+            }
             var cars = _context.Cars.AsQueryable();
 
             if (!string.IsNullOrEmpty(condition))
@@ -81,6 +89,9 @@ namespace CarStore_API.Controllers
         // PUT: api/Cars/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutCar(int id, Car car)
         {
             if (id != car.Id)
@@ -112,6 +123,7 @@ namespace CarStore_API.Controllers
         // POST: api/Cars
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<Car>> PostCar(Car car)
         {
             if (_context.Cars == null)
@@ -126,6 +138,8 @@ namespace CarStore_API.Controllers
 
         // DELETE: api/Cars/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCar(int id)
         {
             if (_context.Cars == null)
