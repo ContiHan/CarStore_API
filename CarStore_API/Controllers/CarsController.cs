@@ -57,7 +57,13 @@ namespace CarStore_API.Controllers
         [HttpGet("filter")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<Car>>> GetCarsByFilter([FromQuery] string? condition = null, [FromQuery] string? bodytype = null, [FromQuery] string? fuel = null)
+        public async Task<ActionResult<IEnumerable<Car>>> GetCarsByFilter(
+            [FromQuery] string? condition = null,
+            [FromQuery] string? bodytype = null,
+            [FromQuery] string? fuel = null,
+            [FromQuery] double? minPrice = null,
+            [FromQuery] double? maxPrice = null
+            )
         {
             if (_context.Cars is null)
             {
@@ -76,6 +82,14 @@ namespace CarStore_API.Controllers
             if (!string.IsNullOrEmpty(fuel))
             {
                 cars = cars.Where(c => c.Fuel.ToLower().Contains(fuel.ToLower()));
+            }
+            if (minPrice >= 0 && minPrice is not null)
+            {
+                cars = cars.Where(c => c.Price > minPrice);
+            }
+            if (maxPrice < double.MaxValue && maxPrice is not null)
+            {
+                cars = cars.Where(c => c.Price < maxPrice);
             }
 
             if (!await cars.AnyAsync())
